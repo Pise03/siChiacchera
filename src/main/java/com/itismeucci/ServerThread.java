@@ -14,10 +14,12 @@ public class ServerThread extends Thread {
     int conta = 0;
     String destinatario;
 
-    public ServerThread(Socket socket, ServerSocket server, ServerListener writer1) {
+    public ServerThread(Socket socket, ServerSocket server, ServerListener writer1) throws Exception{
         this.client = socket;
         this.server = server;
         this.writer2 = writer1;
+        inDalClient = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        outVersoClient = new DataOutputStream(client.getOutputStream());
     }
 
     public void run() {
@@ -28,20 +30,15 @@ public class ServerThread extends Thread {
         }
     }
 
-    public void comunica() throws Exception {
-
-        inDalClient = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        outVersoClient = new DataOutputStream(client.getOutputStream());
-
-
+    public void comunica() throws Exception{
         for (;;) {
             stringaRicevuta = inDalClient.readLine(); //leggo la stringa inviata dal client
 
             if (conta == 0) { // se è la prima allora è perforza il nome dell'utente poichè questo viene richiesto all'inizio dell'esecuzione del socket
 
-                if(writer2.verify(stringaRicevuta, client)){ //se il controllo va a buon fine allora il client entra nella chat, senno darà errore e richiederà l'inserimento dei dati
+                if(writer2.verify(stringaRicevuta, this)){ //se il controllo va a buon fine allora il client entra nella chat, senno darà errore e richiederà l'inserimento dei dati
                     nomeUtente = stringaRicevuta;
-                    writer2.aggiungiSocket(nomeUtente, client);
+                    writer2.aggiungiSocket(nomeUtente, this); //this fa passare il ServerThread corrente
                     conta++;
                     System.out.println("Aggiunto utente: " + nomeUtente);
                 }
@@ -73,5 +70,9 @@ public class ServerThread extends Thread {
         inDalClient.close();
         System.out.println("Chiusura socket: " + client);
         client.close();
+    }
+
+    public void messaggia(String messaggio) throws Exception{
+        outVersoClient.writeBytes(messaggio + "\n");
     }
 }
