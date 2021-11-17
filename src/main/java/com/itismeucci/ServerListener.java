@@ -14,7 +14,7 @@ public class ServerListener{
 
         for (String i : handler.keySet()) {
             if (i != nomeUtente) {
-                handler.get(i).messaggia(nomeUtente + " è entrato nella chat.");
+                handler.get(i).messaggia(nomeUtente + " e' entrato nella chat.");
             }
           }
     }
@@ -39,13 +39,13 @@ public class ServerListener{
         handler.remove(nome);
 
         for (ServerThread thread : handler.values()) {
-            thread.messaggia(nome + " è uscito dalla chat.");
+            thread.messaggia(nome + " e' uscito dalla chat.");
         }
     }
 
     public boolean verify(String nome, ServerThread thread) throws Exception{
             if (handler.containsKey(nome)) {
-                thread.messaggia("Errore: il nome è gia stato inserito. Sceglierne un altro.");
+                thread.messaggia("Errore: il nome e' gia stato inserito. Sceglierne un altro.");
                 return false;
             }
         

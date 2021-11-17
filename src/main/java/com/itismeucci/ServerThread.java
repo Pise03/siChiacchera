@@ -7,7 +7,6 @@ public class ServerThread extends Thread {
     ServerListener writer2;
     Socket client = null;
     String stringaRicevuta = null;
-    String stringaModificata = null;
     BufferedReader inDalClient;
     DataOutputStream outVersoClient;
     String nomeUtente = null;

@@ -9,12 +9,12 @@ public class Client {
     Socket miosocket;
     BufferedReader tastiera;
     String stringaUtente;
-    String stringaRicevutaDalServer;
     DataOutputStream outVersoServer;
+    ClientListener listener;
 
     int conta = 0;
 
-    public Socket connetti() {
+    public Socket connetti() throws Exception{
 
         System.out.println("Ingresso nella chat");
         try {
@@ -24,6 +24,8 @@ public class Client {
             miosocket = new Socket(nomeServer, portaServer);
 
             outVersoServer = new DataOutputStream(miosocket.getOutputStream());
+            
+            listener = new ClientListener(miosocket);
 
         } catch (UnknownHostException e) {
             System.err.println("Host sconosciuto");
@@ -36,7 +38,8 @@ public class Client {
         return miosocket;
     }
 
-    public void comunica() {
+    public void comunica() throws Exception{
+        listener.start();
         for (;;) {
             try {
                 if (conta == 0) {
@@ -45,8 +48,8 @@ public class Client {
                     outVersoServer.writeBytes(stringaUtente + '\n');
                     conta++;
                 } else {
-                    ClientListener listener = new ClientListener(miosocket);
-                    listener.start();
+                    
+                    
 
                     System.out.print("Messaggio: ");
                     stringaUtente = tastiera.readLine();
@@ -65,7 +68,7 @@ public class Client {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         Client client = new Client();
         client.connetti();
         client.comunica();

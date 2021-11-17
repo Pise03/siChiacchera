@@ -17,8 +17,6 @@ public class ClientListener extends Thread {
     }
 
     public void ascolta() throws IOException {
-        
-
         for (;;) {
             stringaRicevutaDalServer = inDalServer.readLine();
             System.out.println("\n" + "Stringa ricevuta: " + stringaRicevutaDalServer);
