@@ -4,62 +4,91 @@ import java.io.*;
 import java.net.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.util.logging.*;
 import javax.swing.*;
 
-public class Client implements ActionListener {
+public class Client implements ActionListener, KeyListener {
     String nomeServer = "localhost";
     int portaServer = 6789;
+    int conta = 0;
     Socket miosocket;
     BufferedReader tastiera;
     String stringaUtente;
     String stringaRicevutaDalServer;
     DataOutputStream outVersoServer;
 
-    int conta = 0;
-
     // componenti GUI
-    JFrame frame;
-    JPanel panel;
-    JLabel label;
+    JFrame frame1;
+    JFrame frame2;
+    JPanel panel1;
+    JPanel panel2;
+    JLabel labelNomeUtente;
     JTextField textField;
-    JButton button;
-
-    public Client() {
-        inserimentoNomeUtente();
-    }
+    JTextArea textArea;
+    JButton buttonInserisci;
+    JButton buttonInvia;
 
     public void inserimentoNomeUtente() {
-        frame = new JFrame();
 
-        label = new JLabel("Inserire nome utente");
-        label.setBounds(240, 180, 400, 30);
-        label.setFont(new Font("Itim", Font.BOLD, 18));
+        frame1 = new JFrame();
+
+        labelNomeUtente = new JLabel("Inserire nome utente");
+        labelNomeUtente.setBounds(240, 180, 400, 30);
+        labelNomeUtente.setFont(new Font("Itim", Font.BOLD, 18));
 
         textField = new JTextField();
         textField.setBounds(220, 240, 180, 30);
         textField.setFont(new Font("Itim", Font.BOLD, 14));
 
-        button = new JButton("Inserisci");
-        button.setBounds(240, 280, 140, 30);
-        button.setFont(new Font("Itim", Font.BOLD, 14));
-        button.addActionListener(this);
+        buttonInserisci = new JButton("Inserisci");
+        buttonInserisci.setBounds(240, 280, 140, 30);
+        buttonInserisci.setFont(new Font("Itim", Font.BOLD, 14));
+        buttonInserisci.addActionListener(this);
+        buttonInserisci.addActionListener(this);
 
-        panel = new JPanel();
-        panel.setLayout(null);
-        panel.setPreferredSize(new Dimension(720, 480));
-        panel.add(label);
-        panel.add(textField);
-        panel.add(button);
+        panel1 = new JPanel();
+        panel1.setLayout(null);
+        panel1.setPreferredSize(new Dimension(720, 480));
+        panel1.add(labelNomeUtente);
+        panel1.add(textField);
+        panel1.add(buttonInserisci);
 
-        frame.add(panel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setTitle("siChiacchera");
-        frame.setResizable(false);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        frame1.add(panel1);
+        frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame1.setTitle("siChiacchera");
+        frame1.setResizable(false);
+        frame1.pack();
+        frame1.setLocationRelativeTo(null);
+        frame1.setVisible(true);
+    }
+
+    public void chatGUI() {
+        frame2 = new JFrame();
+
+        textArea = new JTextArea();
+        textArea.setBounds(10, 10, 680, 400);
+        textArea.setFont(new Font("Itim", Font.PLAIN, 14));
+        textArea.setBackground(Color.orange);
+        textArea.setEditable(false);
+
+        buttonInvia = new JButton("Invia");
+        buttonInvia.setBounds(610, 450, 80, 20);
+        buttonInvia.setFont(new Font("Itim", Font.BOLD, 14));
+        buttonInvia.addActionListener(this);
+        buttonInvia.addActionListener(this);
+
+        panel2 = new JPanel();
+        panel2.setLayout(null);
+        panel2.setPreferredSize(new Dimension(720, 480));
+        panel2.add(buttonInvia);
+        panel2.add(textArea);
+
+        frame2.add(panel2);
+        frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame2.setTitle("siChiacchera");
+        frame2.setResizable(false);
+        frame2.pack();
+        frame2.setLocationRelativeTo(null);
+        frame2.setVisible(true);
     }
 
     public Socket connetti() {
@@ -82,7 +111,10 @@ public class Client implements ActionListener {
         return miosocket;
     }
 
-    public void comunica() {
+    public void comunica() throws IOException {
+        ClientListener listener = new ClientListener(miosocket);
+        listener.start();
+
         for (;;) {
             try {
                 if (conta == 0) {
@@ -91,9 +123,6 @@ public class Client implements ActionListener {
                     outVersoServer.writeBytes(stringaUtente + '\n');
                     conta++;
                 } else {
-                    ClientListener listener = new ClientListener(miosocket);
-                    listener.start();
-
                     System.out.print("Messaggio: ");
                     stringaUtente = tastiera.readLine();
 
@@ -114,23 +143,43 @@ public class Client implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
 
-        if (e.getSource().equals(button)) {
+        // controllo se viene premuto il pulsante per l'inserimento del nome utente
+        if (e.getSource().equals(buttonInserisci)) {
             String nomeUtente = textField.getText();
             try {
                 outVersoServer.writeBytes(nomeUtente + '\n');
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
-            conta++;
             // Chiudo la finestra per l'inserimento del nome utente
-            frame.dispose();
+            frame1.dispose();
+            // apro la finestra della chat
+            chatGUI();
+
+        } else { // controllo se viene premuto il pulsante per l'invio dei messaggi
+
         }
 
+    }
+
+    // metodi sovrascritti dall'implementazione KeyListener
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
     }
 
     public static void main(String[] args) throws IOException {
         Client client = new Client();
         client.connetti();
-        client.comunica();
+        // client.comunica();
+        client.inserimentoNomeUtente();
     }
+
 }
