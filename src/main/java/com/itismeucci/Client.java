@@ -16,7 +16,6 @@ public class Client implements ActionListener {
     String stringaUtente;
     String stringaRicevutaDalServer;
     DataOutputStream outVersoServer;
-    BufferedReader inDalServer;
 
     int conta = 0;
 
@@ -72,8 +71,6 @@ public class Client implements ActionListener {
             miosocket = new Socket(nomeServer, portaServer);
 
             outVersoServer = new DataOutputStream(miosocket.getOutputStream());
-
-            inDalServer = new BufferedReader(new InputStreamReader(miosocket.getInputStream()));
 
         } catch (UnknownHostException e) {
             System.err.println("Host sconosciuto");
