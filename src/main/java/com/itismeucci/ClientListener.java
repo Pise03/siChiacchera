@@ -1,7 +1,7 @@
 package com.itismeucci;
 
 import java.io.*;
-import java.net.Socket;
+import java.net.*;
 
 public class ClientListener extends Thread {
 

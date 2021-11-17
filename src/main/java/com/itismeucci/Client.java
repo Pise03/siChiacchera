@@ -2,8 +2,13 @@ package com.itismeucci;
 
 import java.io.*;
 import java.net.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.logging.*;
+import javax.swing.*;
 
-public class Client {
+public class Client implements ActionListener {
     String nomeServer = "localhost";
     int portaServer = 6789;
     Socket miosocket;
@@ -15,8 +20,50 @@ public class Client {
 
     int conta = 0;
 
-    public Socket connetti() {
+    // componenti GUI
+    JFrame frame;
+    JPanel panel;
+    JLabel label;
+    JTextField textField;
+    JButton button;
 
+    public Client() {
+        inserimentoNomeUtente();
+    }
+
+    public void inserimentoNomeUtente() {
+        frame = new JFrame();
+
+        label = new JLabel("Inserire nome utente");
+        label.setBounds(240, 180, 400, 30);
+        label.setFont(new Font("Itim", Font.BOLD, 18));
+
+        textField = new JTextField();
+        textField.setBounds(220, 240, 180, 30);
+        textField.setFont(new Font("Itim", Font.BOLD, 14));
+
+        button = new JButton("Inserisci");
+        button.setBounds(240, 280, 140, 30);
+        button.setFont(new Font("Itim", Font.BOLD, 14));
+        button.addActionListener(this);
+
+        panel = new JPanel();
+        panel.setLayout(null);
+        panel.setPreferredSize(new Dimension(720, 480));
+        panel.add(label);
+        panel.add(textField);
+        panel.add(button);
+
+        frame.add(panel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setTitle("siChiacchera");
+        frame.setResizable(false);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+    public Socket connetti() {
         System.out.println("Ingresso nella chat");
         try {
 
@@ -30,7 +77,6 @@ public class Client {
 
         } catch (UnknownHostException e) {
             System.err.println("Host sconosciuto");
-
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.out.println("Errore durante la connessione");
@@ -66,6 +112,23 @@ public class Client {
                 System.exit(1);
             }
         }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+        if (e.getSource().equals(button)) {
+            String nomeUtente = textField.getText();
+            try {
+                outVersoServer.writeBytes(nomeUtente + '\n');
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            conta++;
+            // Chiudo la finestra per l'inserimento del nome utente
+            frame.dispose();
+        }
+
     }
 
     public static void main(String[] args) throws IOException {
