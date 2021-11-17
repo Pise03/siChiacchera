@@ -15,6 +15,7 @@ public class Client implements ActionListener, KeyListener {
     String stringaUtente;
     String stringaRicevutaDalServer;
     DataOutputStream outVersoServer;
+    ClientListener listener;
 
     // componenti GUI
     JFrame frame1;
@@ -101,6 +102,8 @@ public class Client implements ActionListener, KeyListener {
 
             outVersoServer = new DataOutputStream(miosocket.getOutputStream());
 
+            listener = new ClientListener(miosocket);
+
         } catch (UnknownHostException e) {
             System.err.println("Host sconosciuto");
         } catch (Exception e) {
@@ -111,8 +114,7 @@ public class Client implements ActionListener, KeyListener {
         return miosocket;
     }
 
-    public void comunica() throws IOException {
-        ClientListener listener = new ClientListener(miosocket);
+    public void comunica() {
         listener.start();
 
         for (;;) {
