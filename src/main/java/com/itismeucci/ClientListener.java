@@ -11,12 +11,13 @@ public class ClientListener extends Thread {
     Socket mioSocket;
 
     // costruttore
-    public ClientListener(Socket socket) {
+    public ClientListener(Socket socket) throws IOException{
         mioSocket = socket;
+        inDalServer = new BufferedReader(new InputStreamReader(mioSocket.getInputStream()));
     }
 
     public void ascolta() throws IOException {
-        inDalServer = new BufferedReader(new InputStreamReader(mioSocket.getInputStream()));
+        
 
         for (;;) {
             stringaRicevutaDalServer = inDalServer.readLine();
