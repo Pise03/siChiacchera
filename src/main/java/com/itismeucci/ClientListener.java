@@ -11,15 +11,20 @@ public class ClientListener extends Thread {
     Socket mioSocket;
 
     // costruttore
-    public ClientListener(Socket socket) throws IOException{
+    public ClientListener(Socket socket) throws IOException {
         mioSocket = socket;
         inDalServer = new BufferedReader(new InputStreamReader(mioSocket.getInputStream()));
     }
 
-    public void ascolta() throws IOException {
+    public void ascolta() throws IOException, InterruptedException {
         for (;;) {
             stringaRicevutaDalServer = inDalServer.readLine();
-            System.out.println("\n" + "Stringa ricevuta: " + stringaRicevutaDalServer);
+            
+            Thread.sleep(1000);
+
+            System.out.println("Stringa ricevuta: " + stringaRicevutaDalServer);
+
+            Client.textArea.append(stringaRicevutaDalServer + "\n");
 
             if (stringaRicevutaDalServer.charAt(0) == '$' && stringaRicevutaDalServer.charAt(1) == 'e') {
                 System.out.println("Disconnessione...");
@@ -32,6 +37,8 @@ public class ClientListener extends Thread {
         try {
             ascolta();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

@@ -14,6 +14,7 @@ public class Client implements ActionListener, KeyListener {
     BufferedReader tastiera;
     String stringaUtente;
     String stringaRicevutaDalServer;
+    String nomeUtente;
     DataOutputStream outVersoServer;
     ClientListener listener;
 
@@ -24,31 +25,35 @@ public class Client implements ActionListener, KeyListener {
     JPanel panel2;
     JLabel labelNomeUtente;
     JTextField textField;
-    JTextArea textArea;
+    JTextField tfMessaggio;
+    public static JTextArea textArea;
     JButton buttonInserisci;
     JButton buttonInvia;
 
     public void inserimentoNomeUtente() {
-
         frame1 = new JFrame();
 
         labelNomeUtente = new JLabel("Inserire nome utente");
-        labelNomeUtente.setBounds(240, 180, 400, 30);
+        labelNomeUtente.setBounds(230, 130, 400, 30);
         labelNomeUtente.setFont(new Font("Itim", Font.BOLD, 18));
+        labelNomeUtente.setForeground(Color.decode("#EEEEEE"));
 
         textField = new JTextField();
-        textField.setBounds(220, 240, 180, 30);
-        textField.setFont(new Font("Itim", Font.BOLD, 14));
+        textField.setBounds(240, 170, 160, 25);
+        textField.setFont(new Font("Itim", Font.BOLD, 16));
+        textField.setBackground(Color.decode("#EEEEEE"));
 
         buttonInserisci = new JButton("Inserisci");
-        buttonInserisci.setBounds(240, 280, 140, 30);
-        buttonInserisci.setFont(new Font("Itim", Font.BOLD, 14));
+        buttonInserisci.setBounds(270, 210, 100, 25);
+        buttonInserisci.setFont(new Font("Itim", Font.BOLD, 16));
+        buttonInserisci.setBackground(Color.decode("#FD7014"));
         buttonInserisci.addActionListener(this);
-        buttonInserisci.addActionListener(this);
+        buttonInserisci.addKeyListener(this);
 
         panel1 = new JPanel();
         panel1.setLayout(null);
-        panel1.setPreferredSize(new Dimension(720, 480));
+        panel1.setPreferredSize(new Dimension(640, 360));
+        panel1.setBackground(Color.decode("#222831"));
         panel1.add(labelNomeUtente);
         panel1.add(textField);
         panel1.add(buttonInserisci);
@@ -66,30 +71,50 @@ public class Client implements ActionListener, KeyListener {
         frame2 = new JFrame();
 
         textArea = new JTextArea();
-        textArea.setBounds(10, 10, 680, 400);
-        textArea.setFont(new Font("Itim", Font.PLAIN, 14));
-        textArea.setBackground(Color.orange);
+        textArea.setBounds(10, 10, 834, 425);
+        textArea.setFont(new Font("Itim", Font.BOLD, 18));
+        textArea.setBackground(Color.decode("#393E46"));
+        textArea.setForeground(Color.decode("#EEEEEE"));
         textArea.setEditable(false);
 
+        // per rendere la textArea scrollabile NON FUNZIONA
+        JScrollPane scroll = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+
+        tfMessaggio = new JTextField();
+        tfMessaggio.setBounds(10, 445, 744, 25);
+        tfMessaggio.setFont(new Font("Itim", Font.BOLD, 16));
+        tfMessaggio.setBackground(Color.decode("#EEEEEE"));
+
         buttonInvia = new JButton("Invia");
-        buttonInvia.setBounds(610, 450, 80, 20);
-        buttonInvia.setFont(new Font("Itim", Font.BOLD, 14));
+        buttonInvia.setBounds(764, 445, 80, 25);
+        buttonInvia.setFont(new Font("Itim", Font.BOLD, 16));
+        buttonInvia.setBackground(Color.decode("#FD7014"));
         buttonInvia.addActionListener(this);
-        buttonInvia.addActionListener(this);
+        buttonInvia.addKeyListener(this);
 
         panel2 = new JPanel();
         panel2.setLayout(null);
-        panel2.setPreferredSize(new Dimension(720, 480));
+        panel2.setPreferredSize(new Dimension(854, 480));
+        panel2.setBackground(Color.decode("#222831"));
         panel2.add(buttonInvia);
         panel2.add(textArea);
+        panel2.add(tfMessaggio);
+        panel2.add(scroll);
 
         frame2.add(panel2);
         frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame2.setTitle("siChiacchera");
+        frame2.setTitle("siChiacchera | Utente: " + nomeUtente);
         frame2.setResizable(false);
         frame2.pack();
         frame2.setLocationRelativeTo(null);
         frame2.setVisible(true);
+
+        listener.start();
+
+        //non funziona
+        ServerListener serverListener = new ServerListener();
+        textArea.setText(serverListener.stampaUtentiConnessi());
     }
 
     public Socket connetti() {
@@ -125,13 +150,11 @@ public class Client implements ActionListener, KeyListener {
                     outVersoServer.writeBytes(stringaUtente + '\n');
                     conta++;
                 } else {
-                    System.out.print("Messaggio: ");
                     stringaUtente = tastiera.readLine();
 
                     // la spedisco al server
                     System.out.println("Invio messaggio...");
                     outVersoServer.writeBytes(stringaUtente + '\n');
-
                 }
 
             } catch (Exception e) {
@@ -147,7 +170,7 @@ public class Client implements ActionListener, KeyListener {
 
         // controllo se viene premuto il pulsante per l'inserimento del nome utente
         if (e.getSource().equals(buttonInserisci)) {
-            String nomeUtente = textField.getText();
+            nomeUtente = textField.getText();
             try {
                 outVersoServer.writeBytes(nomeUtente + '\n');
             } catch (IOException e1) {
@@ -159,7 +182,23 @@ public class Client implements ActionListener, KeyListener {
             chatGUI();
 
         } else { // controllo se viene premuto il pulsante per l'invio dei messaggi
+            String messaggio = tfMessaggio.getText();
+            tfMessaggio.setText("");
 
+            if (messaggio.charAt(0) != '$') {
+                textArea.append(nomeUtente + ": " + messaggio + "\n");
+            }
+
+            try {
+                outVersoServer.writeBytes(messaggio + '\n');
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            // chiusura della chat se viene mandato il messaggio "$e"
+            if (messaggio.equals("$e")) {
+                frame2.dispose();
+            }
         }
 
     }
