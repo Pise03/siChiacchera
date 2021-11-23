@@ -19,9 +19,7 @@ Server:
 - se mi arriva una stringa con $e: allora elimino la connessione con il client e toglo dall'hashmap il client.
 
 Client:
-- Il client appena connesso manda il nome utente al server: (nomeUtente + "\n");
-- Il client invia un messaggio: (strMessaggio + "\n");
-- Il client per disconnettersi deve mandare un strMessaggio = "EXIT" --> (strMessaggio + '\n');
+- Il client appena connesso manda il nome utente al server e al nome utente viene aggiunto un carattere '/' all'inizio per far capire al server che si tratta di un nome utente
 - se si vuole inviare pubblico: $b, poi dico il messaggio da inviare
 - se si vuole inviare privato: $v, poi dico il nome del destinatario ed infine invio il messaggio
 - se si vuole uscire dalla chat inviare: $e

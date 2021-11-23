@@ -3,8 +3,7 @@ package com.itismeucci;
 import java.net.*;
 
 public class Server {
-    // public static HashMap<String, Socket> HANDLER = new HashMap<String,Socket>();
-    // in caso mi servisse che l'hashmap sia in variabile globale
+
     public void start() {
         try {
             ServerSocket serverSocket = new ServerSocket(6789);
@@ -15,7 +14,6 @@ public class Server {
                 Socket socket = serverSocket.accept();
                 ServerThread serverListener = new ServerThread(socket, serverSocket, hashMap);
                 serverListener.start();
-
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());

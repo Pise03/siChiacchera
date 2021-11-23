@@ -20,7 +20,7 @@ public class ClientListener extends Thread {
         for (;;) {
             stringaRicevutaDalServer = inDalServer.readLine();
             
-            Thread.sleep(1000);
+            Thread.sleep(500);
 
             System.out.println("Stringa ricevuta: " + stringaRicevutaDalServer);
 

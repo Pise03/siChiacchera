@@ -9,7 +9,6 @@ import javax.swing.*;
 public class Client implements ActionListener, KeyListener {
     String nomeServer = "localhost";
     int portaServer = 6789;
-    int conta = 0;
     Socket miosocket;
     BufferedReader tastiera;
     String stringaUtente;
@@ -17,6 +16,7 @@ public class Client implements ActionListener, KeyListener {
     String nomeUtente;
     DataOutputStream outVersoServer;
     ClientListener listener;
+    ServerListener serverListener = new ServerListener();
 
     // componenti GUI
     JFrame frame1;
@@ -24,6 +24,7 @@ public class Client implements ActionListener, KeyListener {
     JPanel panel1;
     JPanel panel2;
     JLabel labelNomeUtente;
+    JLabel errore;
     JTextField textField;
     JTextField tfMessaggio;
     public static JTextArea textArea;
@@ -50,6 +51,10 @@ public class Client implements ActionListener, KeyListener {
         buttonInserisci.addActionListener(this);
         buttonInserisci.addKeyListener(this);
 
+        errore = new JLabel();
+        errore.setSize(300, 25);
+        errore.setForeground(Color.red);
+
         panel1 = new JPanel();
         panel1.setLayout(null);
         panel1.setPreferredSize(new Dimension(640, 360));
@@ -57,6 +62,7 @@ public class Client implements ActionListener, KeyListener {
         panel1.add(labelNomeUtente);
         panel1.add(textField);
         panel1.add(buttonInserisci);
+        panel1.add(errore);
 
         frame1.add(panel1);
         frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -76,10 +82,12 @@ public class Client implements ActionListener, KeyListener {
         textArea.setBackground(Color.decode("#393E46"));
         textArea.setForeground(Color.decode("#EEEEEE"));
         textArea.setEditable(false);
+        textArea.append(
+                "Ti sei unito alla chat\nComandi:\n$b - Messaggio pubblico\n$v - Messaggio privato\n$e - Abbandona chat\n\n");
 
-        // per rendere la textArea scrollabile NON FUNZIONA
-        JScrollPane scroll = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        // per rendere la textArea scrollabile (NON FUNZIONA)
+        JScrollPane scroll = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         tfMessaggio = new JTextField();
         tfMessaggio.setBounds(10, 445, 744, 25);
@@ -112,9 +120,9 @@ public class Client implements ActionListener, KeyListener {
 
         listener.start();
 
-        //non funziona
-        ServerListener serverListener = new ServerListener();
-        textArea.setText(serverListener.stampaUtentiConnessi());
+        // non funziona
+        // textArea.setText(serverListener.stampaUtentiConnessi());
+        // System.out.println(serverListener.stampaUtentiConnessi());
     }
 
     public Socket connetti() {
@@ -139,47 +147,35 @@ public class Client implements ActionListener, KeyListener {
         return miosocket;
     }
 
-    public void comunica() {
-        listener.start();
-
-        for (;;) {
-            try {
-                if (conta == 0) {
-                    System.out.print("Inserisci nome utente: ");
-                    stringaUtente = tastiera.readLine();
-                    outVersoServer.writeBytes(stringaUtente + '\n');
-                    conta++;
-                } else {
-                    stringaUtente = tastiera.readLine();
-
-                    // la spedisco al server
-                    System.out.println("Invio messaggio...");
-                    outVersoServer.writeBytes(stringaUtente + '\n');
-                }
-
-            } catch (Exception e) {
-                System.out.println("e.getMessage()");
-                System.out.println("Errore durante la comunicazione con il server!");
-                System.exit(1);
-            }
-        }
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
 
         // controllo se viene premuto il pulsante per l'inserimento del nome utente
         if (e.getSource().equals(buttonInserisci)) {
             nomeUtente = textField.getText();
+
             try {
-                outVersoServer.writeBytes(nomeUtente + '\n');
-            } catch (IOException e1) {
+                // controllo che il nome non sia già stato inserito (NON FUNZIONA)
+                if (!serverListener.verify(nomeUtente)) {
+                    errore.setText("Nome utente gia' inserito");
+                    errore.setLocation(250, 250);
+                } else if (nomeUtente.contains(" ")) {
+                    errore.setText("Il nome utente non puo' contenere spazi");
+                    errore.setLocation(205, 250);
+                } else if (nomeUtente.equals("")) {
+                    errore.setText("Inserire un nome utente");
+                    errore.setLocation(250, 250);
+                } else {
+                    outVersoServer.writeBytes("/" + nomeUtente + '\n');
+
+                    // Chiudo la finestra per l'inserimento del nome utente
+                    frame1.dispose();
+                    // apro la finestra della chat
+                    chatGUI();
+                }
+            } catch (Exception e1) {
                 e1.printStackTrace();
             }
-            // Chiudo la finestra per l'inserimento del nome utente
-            frame1.dispose();
-            // apro la finestra della chat
-            chatGUI();
 
         } else { // controllo se viene premuto il pulsante per l'invio dei messaggi
             String messaggio = tfMessaggio.getText();
@@ -219,7 +215,6 @@ public class Client implements ActionListener, KeyListener {
     public static void main(String[] args) throws IOException {
         Client client = new Client();
         client.connetti();
-        // client.comunica();
         client.inserimentoNomeUtente();
     }
 

@@ -6,15 +6,15 @@ public class ServerListener {
     // creato vettore dove mi salvo tutti i socket dei client
     HashMap<String, ServerThread> handler = new HashMap<String, ServerThread>();
 
-    // metodo per la stampa degli utenti connessi NON FUNIONANTE
-    public String stampaUtentiConnessi(){
-        String output = "";
+    // metodo per la stampa degli utenti connessi (NON FUNIONANTE)
+    public void stampaUtentiConnessi(String a) throws Exception {
 
-        for(String i : handler.keySet()){
-            output += i + "\n";
+        if (handler.size() > 0) {
+            for (String i : handler.keySet()) {
+                handler.get(i).messaggia(handler.keySet() + " ");
+            }
         }
 
-        return output;
     }
 
     public void aggiungiSocket(String nomeUtente, ServerThread thread) throws Exception {
@@ -51,9 +51,9 @@ public class ServerListener {
         }
     }
 
-    public boolean verify(String nome, ServerThread thread) throws Exception {
+    public boolean verify(String nome) throws Exception {
+
         if (handler.containsKey(nome)) {
-            thread.messaggia("Errore: il nome e' gia stato inserito");
             return false;
         }
 
