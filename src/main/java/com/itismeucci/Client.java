@@ -185,10 +185,12 @@ public class Client implements ActionListener, KeyListener {
                 textArea.append(nomeUtente + ": " + messaggio + "\n");
             }
 
-            try {
-                outVersoServer.writeBytes(messaggio + '\n');
-            } catch (IOException e1) {
-                e1.printStackTrace();
+            if (!messaggio.isEmpty()) {
+                try {
+                    outVersoServer.writeBytes(messaggio + '\n');
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
 
             // chiusura della chat se viene mandato il messaggio "$e"
